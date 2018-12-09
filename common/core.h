@@ -6,6 +6,7 @@
 #include "common/Scene/Scene.h"
 #include "common/Scene/Camera/Camera.h"
 #include "common/Scene/Camera/Perspective/PerspectiveCamera.h"
+#include "common/Scene/Camera/WideAperture/WideApertureCamera.h"
 #include "common/Scene/Geometry/Mesh/MeshObject.h"
 #include "common/Scene/Lights/Light.h"
 #include "common/Scene/Lights/Point/PointLight.h"

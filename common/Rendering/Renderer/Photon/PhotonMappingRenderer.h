@@ -23,6 +23,8 @@ private:
 
     int diffusePhotonNumber;
     int maxPhotonBounces;
+    int minPhotonBounces;
+    uint targetPhotonCount;
     std::shared_ptr<class PerspectiveCamera> pCamera;
 
     void GenericPhotonMapGeneration(PhotonKdtree& photonMap, int totalPhotons);

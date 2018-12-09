@@ -14,7 +14,7 @@ public:
 
     float GetFov();
 
-private:
+protected:
     float aspectRatio;
     float fov; // fov is stored as radians
 

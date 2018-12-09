@@ -15,9 +15,11 @@
 #define VISUALIZE_PHOTON_MAPPING 0
 
 PhotonMappingRenderer::PhotonMappingRenderer(std::shared_ptr<class Scene> scene, std::shared_ptr<class ColorSampler> sampler):
-    BackwardRenderer(scene, sampler), 
-    diffusePhotonNumber(5000000),
-    maxPhotonBounces(1000)
+    BackwardRenderer(scene, sampler),
+    diffusePhotonNumber(10000000),
+    maxPhotonBounces(1000),
+    minPhotonBounces(1), // normal is one: only don't count the first direct hit (= zero bounces)
+    targetPhotonCount(10)
 {
     srand(static_cast<unsigned int>(time(NULL)));
 }
@@ -60,23 +62,25 @@ void PhotonMappingRenderer::GenericPhotonMapGeneration(PhotonKdtree& photonMap, 
     }
 
     // Shoot photons -- number of photons for light is proportional to the light's intensity relative to the total light intensity of the scene.
-    for (size_t i = 0; i < totalLights; ++i) {
-        const Light* currentLight = storedScene->GetLightObject(i);
-        if (!currentLight) {
-            continue;
-        }
+    while (photonMap.size() < targetPhotonCount){
+        for (size_t i = 0; i < totalLights; ++i) {
+            const Light* currentLight = storedScene->GetLightObject(i);
+            if (!currentLight) {
+                continue;
+            }
 
-        const float proportion = glm::length(currentLight->GetLightColor()) / totalLightIntensity;
-        const int totalPhotonsForLight = static_cast<const int>(proportion * totalPhotons);
-        const glm::vec3 photonIntensity = currentLight->GetLightColor() / static_cast<float>(totalPhotonsForLight);
-        // I wonder whether this is easily parallelizable... but looks fine. No shared variables. Works!
-        #pragma omp parallel for
-        for (int j = 0; j < totalPhotonsForLight; ++j) {
-            Ray photonRay;
-            int path;
-            path = 1;
-            currentLight->GenerateRandomPhotonRay(photonRay);
-            TracePhoton(photonMap, &photonRay, photonIntensity, path, 1.f, maxPhotonBounces);
+            const float proportion = glm::length(currentLight->GetLightColor()) / totalLightIntensity;
+            const int totalPhotonsForLight = static_cast<const int>(proportion * totalPhotons);
+            const glm::vec3 photonIntensity = currentLight->GetLightColor() / static_cast<float>(totalPhotonsForLight);
+            // I wonder whether this is easily parallelizable... but looks fine. No shared variables. Works!
+            #pragma omp parallel for
+            for (int j = 0; j < totalPhotonsForLight; ++j) {
+                Ray photonRay;
+                int path;
+                path = 1;
+                currentLight->GenerateRandomPhotonRay(photonRay);
+                TracePhoton(photonMap, &photonRay, photonIntensity, path, 1.f, maxPhotonBounces);
+            }
         }
     }
 }
@@ -85,7 +89,7 @@ void PhotonMappingRenderer::TracePhoton(PhotonKdtree& photonMap, Ray* photonRay,
 {
     /*
      * Assignment 8 TODO: Trace a photon into the scene and make it bounce.
-     *    
+     *
      *    How to insert a 'Photon' struct into the photon map.
      *        Photon myPhoton;
      *        ... set photon properties ...
@@ -113,7 +117,7 @@ void PhotonMappingRenderer::TracePhoton(PhotonKdtree& photonMap, Ray* photonRay,
     const glm::vec3 intersectionPoint = state.intersectionRay.GetRayPosition(state.intersectionT);
 
     // store photon only if it doesn't come directly from the light (path > 1)
-    if (path > 1){
+    if (path > minPhotonBounces){
         // create photon
         Photon photon;
 
@@ -202,6 +206,7 @@ void PhotonMappingRenderer::TracePhoton(PhotonKdtree& photonMap, Ray* photonRay,
 glm::vec3 PhotonMappingRenderer::ComputeSampleColor(const struct IntersectionState& intersection, const class Ray& fromCameraRay) const
 {
     glm::vec3 finalRenderColor = BackwardRenderer::ComputeSampleColor(intersection, fromCameraRay);
+    //finalRenderColor = {0.f, 0.f, 0.f};
 #if VISUALIZE_PHOTON_MAPPING
     Photon intersectionVirtualPhoton;
     intersectionVirtualPhoton.position = intersection.intersectionRay.GetRayPosition(intersection.intersectionT);
@@ -227,12 +232,32 @@ glm::vec3 PhotonMappingRenderer::ComputeSampleColor(const struct IntersectionSta
 
     // find photons that are near the intersection (within constant radius)
     std::vector<Photon> foundPhotons;
-    float r = 0.05;
+    float r = 0.005; // minimum r.
     diffuseMap.find_within_range(intersectionVirtualPhoton, r, std::back_inserter(foundPhotons));
+
+
+    // try a different search approach (more similar to KNN)
+    int k = 1000;
+    float growStep = 0.0f;
+    int p = 0;
+    while(int(foundPhotons.size()) < k){
+        // grow radius more if few photons are found. just a runtime optimization.
+        p = (k + int(foundPhotons.size())) / 2;
+        if (int(foundPhotons.size()) == 0){
+            growStep = 0.005;
+        }
+        else{
+            growStep = std::sqrt(float(p) / float(foundPhotons.size())) * r - r;
+        }
+        growStep = std::sqrt(float(p) / float(foundPhotons.size())) * r - r;
+        r = r + std::min(std::max(growStep, 0.005f), 0.05f); // grow by grow step, but at least 0.005, never more than 0.05
+        foundPhotons.clear();
+        diffuseMap.find_within_range(intersectionVirtualPhoton, r, std::back_inserter(foundPhotons));
+    }
 
     // calculate the contribution of each near photon to the pixel. Compute the BRDF coming from that photon
     if (!foundPhotons.empty()) {
-        for (uint p = 0; p < foundPhotons.size(); p++) {
+        for (uint p = 0; p < std::min(int(foundPhotons.size()), k); p++) {
                 const glm::vec3 brdfColor = intersectionMaterial->ComputeBRDF(intersection,                    // intersection point
                                                                                  foundPhotons[p].intensity,    // intensity (always the same...)
                                                                                  foundPhotons[p].toLightRay,   // make a light ray from photon
@@ -241,8 +266,9 @@ glm::vec3 PhotonMappingRenderer::ComputeSampleColor(const struct IntersectionSta
                 // calculate weights based on distance
                 float dist = glm::length(foundPhotons[p].position-intersectionVirtualPhoton.position);
                 float weight = std::max((r - dist) / r, 0.f);
+                float photonDensityAdjust = std::max(float(foundPhotons.size()) / float(k), 1.f);
 
-                finalRenderColor += brdfColor / (r*r) * 50.0f * weight;
+                finalRenderColor += brdfColor / (r*r) * 20.0f * weight * photonDensityAdjust;
             }
     }
 #endif

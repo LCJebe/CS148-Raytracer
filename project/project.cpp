@@ -54,7 +54,14 @@ std::shared_ptr<Camera> project::CreateCamera() const
     camera3->Rotate(glm::vec3(1.f, 0.f, 0.f), 75.5642f / 180.f * PI);
     camera3->Rotate(glm::vec3(0.f, 0.f, 1.f), -123.162f / 180.f * PI);
 
-    return camera1;
+    float focalDistance = 7.f;
+    float apertureRadius = 0.03f;
+    std::shared_ptr<Camera> DOFcamera = std::make_shared<WideApertureCamera>(resolution.x / resolution.y, 49.1f * resolution.y / resolution.x, focalDistance, apertureRadius);
+    DOFcamera->SetPosition(cam_pos);
+    DOFcamera->Rotate(glm::vec3(1.f, 0.f, 0.f), 81.1831f / 180.f * PI);
+    DOFcamera->Rotate(glm::vec3(0.f, 0.f, 1.f), -101.51f / 180.f * PI);
+
+    return DOFcamera;
 }
 
 
@@ -76,8 +83,8 @@ std::shared_ptr<Scene> project::CreateScene() const
     // add a point light
     std::shared_ptr<Light> pointLight = std::make_shared<PointLight>();
     pointLight->SetPosition(glm::vec3(-7.23533f, 7.10771f, 15.1495f));
-    pointLight->SetLightColor(glm::vec3(1.f, 0.5f, 0.2f)*1.f);
-    scene->AddLight(pointLight);
+    pointLight->SetLightColor(glm::vec3(1.f, 0.5f, 0.2f)*0.5f);
+    //scene->AddLight(pointLight);
 
     // add directional light
     std::shared_ptr<Light> directionalLight = std::make_shared<DirectionalLight>();
@@ -85,7 +92,7 @@ std::shared_ptr<Scene> project::CreateScene() const
     //scene->AddLight(directionalLight);
 
     // add the two candle lights using POINT lights
-    glm::vec3 candleColor = glm::vec3(1.f, 0.1f, 0.01f)*6.f;
+    glm::vec3 candleColor = glm::vec3(1.f, 0.2f, 0.05f)*4.f;
 
     std::shared_ptr<Light> candleLight1 = std::make_shared<PointLight>();
     candleLight1->SetPosition(glm::vec3(-1.17678f, -0.754097f, 7.17938f));
@@ -105,6 +112,12 @@ std::shared_ptr<Scene> project::CreateScene() const
     int numPointLights = 5;
     addSphereLight(lightPos1, radius, numPointLights, candleColor, scene);
     addSphereLight(lightPos2, radius, numPointLights, candleColor, scene);
+
+    // add another light for cool reflections
+    std::shared_ptr<Light> refLight = std::make_shared<PointLight>();
+    refLight->SetPosition(glm::vec3(5.46892f, 6.69302f, 6.38128f));
+    refLight->SetLightColor(candleColor);
+    scene->AddLight(refLight);
 
 //    // try it with the real sphere light implementation
 //    glm::vec3 lightPos1 = glm::vec3(4.46158f, 1.94833f, 7.22604f);
@@ -131,7 +144,7 @@ std::shared_ptr<Scene> project::CreateScene() const
 
     // Objects (loaded from a sigle .obj file)
     std::vector<std::shared_ptr<aiMaterial>> loadedMaterials;
-    std::vector<std::shared_ptr<MeshObject>> allObjects = MeshLoader::LoadMesh("../../../Project/Scene4.obj", &loadedMaterials);
+    std::vector<std::shared_ptr<MeshObject>> allObjects = MeshLoader::LoadMesh("../../../Project/Scene5.obj", &loadedMaterials);
     std::cout << " There are " << allObjects.size() << " objects in the scene." << std::endl;
     for (size_t i = 0; i < allObjects.size(); ++i) {
         std::shared_ptr<Material> materialCopy = std::make_shared<BlinnPhongMaterial>();
@@ -173,11 +186,11 @@ std::shared_ptr<Scene> project::CreateScene() const
 std::shared_ptr<ColorSampler> project::CreateSampler() const
 {
     std::shared_ptr<JitterColorSampler> jitter = std::make_shared<JitterColorSampler>();
-    jitter->SetGridSize(glm::ivec3(4, 4, 1));
+    jitter->SetGridSize(glm::ivec3(4, 4, 1)); // 4, 4
 
     std::shared_ptr<SimpleAdaptiveSampler> sampler = std::make_shared<SimpleAdaptiveSampler>();
     sampler->SetInternalSampler(jitter);
-    sampler->SetEarlyExitParameters(10.f * SMALL_EPSILON, 16);
+    sampler->SetEarlyExitParameters(100.f * SMALL_EPSILON, 16); // 16
 
     return sampler;
     //return jitter;
@@ -185,19 +198,19 @@ std::shared_ptr<ColorSampler> project::CreateSampler() const
 
 std::shared_ptr<class Renderer> project::CreateRenderer(std::shared_ptr<Scene> scene, std::shared_ptr<ColorSampler> sampler) const
 {
-//    std::shared_ptr<BackwardRenderer> renderer = std::make_shared<BackwardRenderer>(scene, sampler);
+    std::shared_ptr<BackwardRenderer> renderer = std::make_shared<BackwardRenderer>(scene, sampler);
 
-    std::shared_ptr<Camera> camera = CreateCamera();
-    std::shared_ptr<PhotonMappingRenderer> renderer = std::make_shared<PhotonMappingRenderer>(scene, sampler);
-    std::shared_ptr<PerspectiveCamera> pcamera = std::dynamic_pointer_cast<PerspectiveCamera> (camera);
-    renderer->setPerspectiveCamera(pcamera);
+//    std::shared_ptr<Camera> camera = CreateCamera();
+//    std::shared_ptr<PhotonMappingRenderer> renderer = std::make_shared<PhotonMappingRenderer>(scene, sampler);
+//    std::shared_ptr<PerspectiveCamera> pcamera = std::dynamic_pointer_cast<PerspectiveCamera> (camera);
+//    renderer->setPerspectiveCamera(pcamera);
 
     return renderer;
 }
 
 int project::GetSamplesPerPixel() const
 {
-    return 32;
+    return 1;
 }
 
 bool project::NotifyNewPixelSample(glm::vec3 inputSampleColor, int sampleIndex)
@@ -217,5 +230,5 @@ int project::GetMaxRefractionBounces() const
 
 glm::vec2 project::GetImageOutputResolution() const
 {
-    return glm::vec2(1920.f, 1080.f) / 1.0f;
+    return glm::vec2(1920.f, 1080.f) / 2.0f;
 }

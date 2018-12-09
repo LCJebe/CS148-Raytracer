@@ -71,12 +71,9 @@ void RayTracer::Run()
 
                 return sampleColor;
             }), c, r);
-            if ((c % 100) == 0) {
-                std::cout << "Col " << c << std::endl;
+            if ((r < currentResolution.y / 8.0f) && ((c % 100) == 0)) {
+                std::cout << (r + c / currentResolution.x) / currentResolution.y * 800.0f << " % finished..." << std::endl;
             }
-        }
-        if ((r % 1) == 0) {
-            std::cout << "Row " << r << std::endl;
         }
     }
 
@@ -85,7 +82,6 @@ void RayTracer::Run()
 
     // Now copy whatever is in the HDR data and store it in the bitmap that we will save (aka everything will get clamped to be [0.0, 1.0]).
     imageWriter.CopyHDRToBitmap();
-
     // Save image.
     imageWriter.SaveImage();
 }
