@@ -16,7 +16,7 @@ void BackwardRenderer::InitializeRenderer()
 {
 }
 
-glm::vec3 BackwardRenderer::ComputeSampleColor(const IntersectionState& intersection, const Ray& fromCameraRay) const
+glm::vec3 BackwardRenderer::ComputeSampleColor(const IntersectionState& intersection, const Ray& fromCameraRay, int sampleIdx) const
 {
     if (!intersection.hasIntersection) {
         return glm::vec3();

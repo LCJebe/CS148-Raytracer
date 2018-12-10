@@ -27,7 +27,7 @@ public:
     virtual std::unique_ptr<SamplerState> CreateSampler(std::random_device& randomDevice, const int maxSamples, const int dimensions) const;
     virtual void InitializeSampler(class Application* app, class Scene* inputScene);
 
-    virtual glm::vec3 ComputeSamplesAndColor(const int maxSamples, const int dimensions, std::function<glm::vec3(glm::vec3)> colorComputer) const;
+    virtual glm::vec3 ComputeSamplesAndColor(const int maxSamples, const int dimensions, std::function<glm::vec3(glm::vec3, int)> colorComputer) const;
     virtual glm::vec3 ComputeSampleCoordinate(SamplerState& state) const;
 protected:
     virtual float GenerateRandomNumber(SamplerState& state) const;

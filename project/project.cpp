@@ -54,14 +54,21 @@ std::shared_ptr<Camera> project::CreateCamera() const
     camera3->Rotate(glm::vec3(1.f, 0.f, 0.f), 75.5642f / 180.f * PI);
     camera3->Rotate(glm::vec3(0.f, 0.f, 1.f), -123.162f / 180.f * PI);
 
+    std::shared_ptr<Camera> camera4 = std::make_shared<PerspectiveCamera>(resolution.x / resolution.y, 49.1f * resolution.y / resolution.x);
+    glm::vec3 cam_pos4(-5.93069, 3.71632, 8.41027);
+    camera4->SetPosition(cam_pos4);
+
+    camera4->Rotate(glm::vec3(1.f, 0.f, 0.f), 71.9599f / 180.f * PI);
+    camera4->Rotate(glm::vec3(0.f, 0.f, 1.f), -114.361f / 180.f * PI);
+
     float focalDistance = 7.f;
-    float apertureRadius = 0.03f;
+    float apertureRadius = 0.06f;
     std::shared_ptr<Camera> DOFcamera = std::make_shared<WideApertureCamera>(resolution.x / resolution.y, 49.1f * resolution.y / resolution.x, focalDistance, apertureRadius);
     DOFcamera->SetPosition(cam_pos);
     DOFcamera->Rotate(glm::vec3(1.f, 0.f, 0.f), 81.1831f / 180.f * PI);
     DOFcamera->Rotate(glm::vec3(0.f, 0.f, 1.f), -101.51f / 180.f * PI);
 
-    return DOFcamera;
+    return camera1;
 }
 
 
@@ -80,30 +87,14 @@ std::shared_ptr<Scene> project::CreateScene() const
     //////////// LIGHTS ///////////////
     ///////////////////////////////////
 
-    // add a point light
+    // add a green / blue point light to balance colors
     std::shared_ptr<Light> pointLight = std::make_shared<PointLight>();
-    pointLight->SetPosition(glm::vec3(-7.23533f, 7.10771f, 15.1495f));
-    pointLight->SetLightColor(glm::vec3(1.f, 0.5f, 0.2f)*0.5f);
-    //scene->AddLight(pointLight);
-
-    // add directional light
-    std::shared_ptr<Light> directionalLight = std::make_shared<DirectionalLight>();
-    directionalLight->SetLightColor(glm::vec3(1.f, 1.f, 1.f)*2.f);
-    //scene->AddLight(directionalLight);
+    pointLight->SetPosition(glm::vec3(4.39946f, 8.18566f, 5.14015f));
+    pointLight->SetLightColor(glm::vec3(0.037f, 0.915f, 1.0f)*2.f);
+    scene->AddLight(pointLight);
 
     // add the two candle lights using POINT lights
     glm::vec3 candleColor = glm::vec3(1.f, 0.2f, 0.05f)*4.f;
-
-    std::shared_ptr<Light> candleLight1 = std::make_shared<PointLight>();
-    candleLight1->SetPosition(glm::vec3(-1.17678f, -0.754097f, 7.17938f));
-    candleLight1->SetLightColor(candleColor);
-    //scene->AddLight(candleLight1);
-
-    std::shared_ptr<Light> candleLight2 = std::make_shared<PointLight>();
-    candleLight2->SetPosition(glm::vec3(4.46581f, 1.94559f, 7.15816f));
-    candleLight2->SetLightColor(candleColor);
-    //scene->AddLight(candleLight2);
-
 
     // try adding the two sphere lights
     glm::vec3 lightPos1 = glm::vec3(4.46158f, 1.94833f, 7.22604f);
@@ -198,19 +189,19 @@ std::shared_ptr<ColorSampler> project::CreateSampler() const
 
 std::shared_ptr<class Renderer> project::CreateRenderer(std::shared_ptr<Scene> scene, std::shared_ptr<ColorSampler> sampler) const
 {
-    std::shared_ptr<BackwardRenderer> renderer = std::make_shared<BackwardRenderer>(scene, sampler);
+    //std::shared_ptr<BackwardRenderer> renderer = std::make_shared<BackwardRenderer>(scene, sampler);
 
-//    std::shared_ptr<Camera> camera = CreateCamera();
-//    std::shared_ptr<PhotonMappingRenderer> renderer = std::make_shared<PhotonMappingRenderer>(scene, sampler);
-//    std::shared_ptr<PerspectiveCamera> pcamera = std::dynamic_pointer_cast<PerspectiveCamera> (camera);
-//    renderer->setPerspectiveCamera(pcamera);
+    std::shared_ptr<Camera> camera = CreateCamera();
+    std::shared_ptr<PhotonMappingRenderer> renderer = std::make_shared<PhotonMappingRenderer>(scene, sampler);
+    std::shared_ptr<PerspectiveCamera> pcamera = std::dynamic_pointer_cast<PerspectiveCamera> (camera);
+    renderer->setPerspectiveCamera(pcamera);
 
     return renderer;
 }
 
 int project::GetSamplesPerPixel() const
 {
-    return 1;
+    return 4;
 }
 
 bool project::NotifyNewPixelSample(glm::vec3 inputSampleColor, int sampleIndex)
@@ -230,5 +221,5 @@ int project::GetMaxRefractionBounces() const
 
 glm::vec2 project::GetImageOutputResolution() const
 {
-    return glm::vec2(1920.f, 1080.f) / 2.0f;
+    return glm::vec2(1920.f, 1080.f) / 3.0f;
 }

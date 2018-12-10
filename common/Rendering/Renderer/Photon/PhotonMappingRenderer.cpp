@@ -203,10 +203,18 @@ void PhotonMappingRenderer::TracePhoton(PhotonKdtree& photonMap, Ray* photonRay,
     }
 }
 
-glm::vec3 PhotonMappingRenderer::ComputeSampleColor(const struct IntersectionState& intersection, const class Ray& fromCameraRay) const
+glm::vec3 PhotonMappingRenderer::ComputeSampleColor(const struct IntersectionState& intersection, const class Ray& fromCameraRay, int sampleIdx) const
 {
-    glm::vec3 finalRenderColor = BackwardRenderer::ComputeSampleColor(intersection, fromCameraRay);
-    //finalRenderColor = {0.f, 0.f, 0.f};
+    glm::vec3 finalRenderColor = BackwardRenderer::ComputeSampleColor(intersection, fromCameraRay, 0);
+    // enable this to only show the conribution of photon mapping
+    // finalRenderColor = {0.f, 0.f, 0.f};
+
+
+    // only do photon mapping for the first 2 samples! should be enough.
+    if (sampleIdx >= 2){
+        return finalRenderColor;
+    }
+
 #if VISUALIZE_PHOTON_MAPPING
     Photon intersectionVirtualPhoton;
     intersectionVirtualPhoton.position = intersection.intersectionRay.GetRayPosition(intersection.intersectionT);

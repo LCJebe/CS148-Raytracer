@@ -15,7 +15,7 @@ std::unique_ptr<SamplerState> ColorSampler::CreateSampler(std::random_device& ra
     return std::move(make_unique<SamplerState>(randomDevice, maxSamples, dimensions));
 }
 
-glm::vec3 ColorSampler::ComputeSamplesAndColor(const int maxSamples, const int dimensions, std::function<glm::vec3(glm::vec3)> colorComputer) const
+glm::vec3 ColorSampler::ComputeSamplesAndColor(const int maxSamples, const int dimensions, std::function<glm::vec3(glm::vec3, int)> colorComputer) const
 {
     std::random_device randomDevice;
     std::unique_ptr<SamplerState> newState = CreateSampler(randomDevice, maxSamples, dimensions);
@@ -26,7 +26,7 @@ glm::vec3 ColorSampler::ComputeSamplesAndColor(const int maxSamples, const int d
         glm::vec3 sampleCoordinates = ComputeSampleCoordinate(*newState.get());
 
         // Compute sample color.
-        glm::vec3 sampleColor = colorComputer(sampleCoordinates);
+        glm::vec3 sampleColor = colorComputer(sampleCoordinates, i);
         finalColor += sampleColor;
         ++newState->samplesComputed;
 
