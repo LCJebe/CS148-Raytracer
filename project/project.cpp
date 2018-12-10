@@ -138,7 +138,7 @@ std::shared_ptr<Scene> project::CreateScene() const
 
     // Objects (loaded from a sigle .obj file)
     std::vector<std::shared_ptr<aiMaterial>> loadedMaterials;
-    std::vector<std::shared_ptr<MeshObject>> allObjects = MeshLoader::LoadMesh("../../../Project/Scene6.obj", &loadedMaterials);
+    std::vector<std::shared_ptr<MeshObject>> allObjects = MeshLoader::LoadMesh("../../../Project/Scene7.obj", &loadedMaterials);
     std::cout << " There are " << allObjects.size() << " objects in the scene." << std::endl;
     for (size_t i = 0; i < allObjects.size(); ++i) {
         std::shared_ptr<Material> materialCopy = std::make_shared<BlinnPhongMaterial>();
@@ -192,19 +192,19 @@ std::shared_ptr<ColorSampler> project::CreateSampler() const
 
 std::shared_ptr<class Renderer> project::CreateRenderer(std::shared_ptr<Scene> scene, std::shared_ptr<ColorSampler> sampler) const
 {
-    //std::shared_ptr<BackwardRenderer> renderer = std::make_shared<BackwardRenderer>(scene, sampler);
+    std::shared_ptr<BackwardRenderer> renderer = std::make_shared<BackwardRenderer>(scene, sampler);
 
-    std::shared_ptr<Camera> camera = CreateCamera();
-    std::shared_ptr<PhotonMappingRenderer> renderer = std::make_shared<PhotonMappingRenderer>(scene, sampler);
-    std::shared_ptr<PerspectiveCamera> pcamera = std::dynamic_pointer_cast<PerspectiveCamera> (camera);
-    renderer->setPerspectiveCamera(pcamera);
+//    std::shared_ptr<Camera> camera = CreateCamera();
+//    std::shared_ptr<PhotonMappingRenderer> renderer = std::make_shared<PhotonMappingRenderer>(scene, sampler);
+//    std::shared_ptr<PerspectiveCamera> pcamera = std::dynamic_pointer_cast<PerspectiveCamera> (camera);
+//    renderer->setPerspectiveCamera(pcamera);
 
     return renderer;
 }
 
 int project::GetSamplesPerPixel() const
 {
-    return 8;
+    return 4;
 }
 
 bool project::NotifyNewPixelSample(glm::vec3 inputSampleColor, int sampleIndex)
@@ -224,5 +224,5 @@ int project::GetMaxRefractionBounces() const
 
 glm::vec2 project::GetImageOutputResolution() const
 {
-    return glm::vec2(1920.f, 1080.f) / 2.0f;
+    return glm::vec2(1920.f, 1080.f) / 3.0f;
 }
