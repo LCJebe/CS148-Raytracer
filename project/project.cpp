@@ -55,11 +55,11 @@ std::shared_ptr<Camera> project::CreateCamera() const
     camera3->Rotate(glm::vec3(0.f, 0.f, 1.f), -123.162f / 180.f * PI);
 
     std::shared_ptr<Camera> camera4 = std::make_shared<PerspectiveCamera>(resolution.x / resolution.y, 49.1f * resolution.y / resolution.x);
-    glm::vec3 cam_pos4(-5.93069, 3.71632, 8.41027);
+    glm::vec3 cam_pos4(-6.99852f, 1.94818f, 6.92974f);
     camera4->SetPosition(cam_pos4);
 
-    camera4->Rotate(glm::vec3(1.f, 0.f, 0.f), 71.9599f / 180.f * PI);
-    camera4->Rotate(glm::vec3(0.f, 0.f, 1.f), -114.361f / 180.f * PI);
+    camera4->Rotate(glm::vec3(1.f, 0.f, 0.f), 81.1832f / 180.f * PI);
+    camera4->Rotate(glm::vec3(0.f, 0.f, 1.f), -101.51f / 180.f * PI);
 
     float focalDistance = 7.f;
     float apertureRadius = 0.06f;
@@ -88,27 +88,30 @@ std::shared_ptr<Scene> project::CreateScene() const
     ///////////////////////////////////
 
     // add a green / blue point light to balance colors
+    glm::vec3 blueColor = glm::vec3(0.037f, 0.915f, 1.0f);
+    glm::vec3 orangeColor = glm::vec3(0.855f, 0.167f, 0.047f);
+
     std::shared_ptr<Light> pointLight = std::make_shared<PointLight>();
-    pointLight->SetPosition(glm::vec3(4.39946f, 8.18566f, 5.14015f));
-    pointLight->SetLightColor(glm::vec3(0.037f, 0.915f, 1.0f)*2.f);
+    pointLight->SetPosition(glm::vec3(4.09601f, 5.2227f, 5.24693f));
+    pointLight->SetLightColor(orangeColor * 2.f);
     scene->AddLight(pointLight);
 
     // add the two candle lights using POINT lights
-    glm::vec3 candleColor = glm::vec3(1.f, 0.2f, 0.05f)*4.f;
+    glm::vec3 candleColor = glm::vec3(1.f, 0.2f, 0.05f)*1.f;
 
     // try adding the two sphere lights
     glm::vec3 lightPos1 = glm::vec3(4.46158f, 1.94833f, 7.22604f);
     glm::vec3 lightPos2 = glm::vec3(-1.16581f, -0.760411f, 7.22604f);
-    float radius = 0.15f;
-    int numPointLights = 5;
+    float radius = 0.12f;
+    int numPointLights = 8;
     addSphereLight(lightPos1, radius, numPointLights, candleColor, scene);
     addSphereLight(lightPos2, radius, numPointLights, candleColor, scene);
 
-    // add another light for cool reflections
-    std::shared_ptr<Light> refLight = std::make_shared<PointLight>();
-    refLight->SetPosition(glm::vec3(5.46892f, 6.69302f, 6.38128f));
-    refLight->SetLightColor(candleColor);
-    scene->AddLight(refLight);
+//    // add another light for cool reflections
+//    std::shared_ptr<Light> refLight = std::make_shared<PointLight>();
+//    refLight->SetPosition(glm::vec3(5.46892f, 6.69302f, 6.38128f));
+//    refLight->SetLightColor(candleColor);
+//    scene->AddLight(refLight);
 
 //    // try it with the real sphere light implementation
 //    glm::vec3 lightPos1 = glm::vec3(4.46158f, 1.94833f, 7.22604f);
@@ -135,7 +138,7 @@ std::shared_ptr<Scene> project::CreateScene() const
 
     // Objects (loaded from a sigle .obj file)
     std::vector<std::shared_ptr<aiMaterial>> loadedMaterials;
-    std::vector<std::shared_ptr<MeshObject>> allObjects = MeshLoader::LoadMesh("../../../Project/Scene5.obj", &loadedMaterials);
+    std::vector<std::shared_ptr<MeshObject>> allObjects = MeshLoader::LoadMesh("../../../Project/Scene6.obj", &loadedMaterials);
     std::cout << " There are " << allObjects.size() << " objects in the scene." << std::endl;
     for (size_t i = 0; i < allObjects.size(); ++i) {
         std::shared_ptr<Material> materialCopy = std::make_shared<BlinnPhongMaterial>();
@@ -201,7 +204,7 @@ std::shared_ptr<class Renderer> project::CreateRenderer(std::shared_ptr<Scene> s
 
 int project::GetSamplesPerPixel() const
 {
-    return 4;
+    return 8;
 }
 
 bool project::NotifyNewPixelSample(glm::vec3 inputSampleColor, int sampleIndex)
@@ -221,5 +224,5 @@ int project::GetMaxRefractionBounces() const
 
 glm::vec2 project::GetImageOutputResolution() const
 {
-    return glm::vec2(1920.f, 1080.f) / 3.0f;
+    return glm::vec2(1920.f, 1080.f) / 2.0f;
 }
