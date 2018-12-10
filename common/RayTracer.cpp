@@ -46,8 +46,8 @@ void RayTracer::Run()
     const unsigned numCPU = std::thread::hardware_concurrency();
     std::cout << "Number of CPUs: " << numCPU << std::endl;
 
-    #pragma omp parallel for
     for (int r = 0; r < static_cast<int>(currentResolution.y); ++r) {
+        #pragma omp parallel for
         for (int c = 0; c < static_cast<int>(currentResolution.x); ++c) {
             imageWriter.SetPixelColor(currentSampler->ComputeSamplesAndColor(maxSamplesPerPixel, 2, [&](glm::vec3 inputSample, int sampleIdx) {
                 const glm::vec3 minRange(-0.5f, -0.5f, 0.f);
@@ -75,10 +75,11 @@ void RayTracer::Run()
 
                 return sampleColor;
             }), c, r);
-            if ((r < float(currentResolution.y) / numCPU) && ((c % 100) == 0)) {
-                std::cout << (r + c / currentResolution.x) / currentResolution.y * numCPU * 100.0f << " % finished..." << std::endl;
-            }
+//            if ((r < float(currentResolution.y) / numCPU) && ((c % 100) == 0)) {
+//                std::cout << (r + c / currentResolution.x) / currentResolution.y * numCPU * 100.0f << " % finished..." << std::endl;
+//            }
         }
+         std::cout << "Row " << r << " of " << currentResolution.y << " finished..." << std::endl;
     }
 
     // Apply post-processing steps (i.e. tone-mapper, etc.).

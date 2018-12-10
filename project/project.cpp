@@ -118,6 +118,12 @@ std::shared_ptr<Scene> project::CreateScene() const
     pointLight->SetLightColor(orangeColor * 2.f);
     scene->AddLight(pointLight);
 
+    // add another one, maybe we can get rid of photon mapping
+    std::shared_ptr<Light> pointLight2 = std::make_shared<PointLight>();
+    pointLight2->SetPosition(glm::vec3(-1.57219f, -0.755099f, 5.41992f));
+    pointLight2->SetLightColor(orangeColor * 0.5f);
+    scene->AddLight(pointLight2);
+
     // add the two candle lights using POINT lights
     glm::vec3 candleColor = glm::vec3(1.f, 0.2f, 0.05f)*2.f;
 
@@ -221,12 +227,12 @@ std::shared_ptr<ColorSampler> project::CreateSampler() const
 
 std::shared_ptr<class Renderer> project::CreateRenderer(std::shared_ptr<Scene> scene, std::shared_ptr<ColorSampler> sampler) const
 {
-    //std::shared_ptr<BackwardRenderer> renderer = std::make_shared<BackwardRenderer>(scene, sampler);
+    std::shared_ptr<BackwardRenderer> renderer = std::make_shared<BackwardRenderer>(scene, sampler);
 
-    std::shared_ptr<Camera> camera = CreateCamera();
-    std::shared_ptr<PhotonMappingRenderer> renderer = std::make_shared<PhotonMappingRenderer>(scene, sampler);
-    std::shared_ptr<PerspectiveCamera> pcamera = std::dynamic_pointer_cast<PerspectiveCamera> (camera);
-    renderer->setPerspectiveCamera(pcamera);
+//    std::shared_ptr<Camera> camera = CreateCamera();
+//    std::shared_ptr<PhotonMappingRenderer> renderer = std::make_shared<PhotonMappingRenderer>(scene, sampler);
+//    std::shared_ptr<PerspectiveCamera> pcamera = std::dynamic_pointer_cast<PerspectiveCamera> (camera);
+//    renderer->setPerspectiveCamera(pcamera);
 
     return renderer;
 }
@@ -253,5 +259,5 @@ int project::GetMaxRefractionBounces() const
 
 glm::vec2 project::GetImageOutputResolution() const
 {
-    return glm::vec2(1920.f, 1080.f) / 3.0f;
+    return glm::vec2(1920.f, 1080.f) / 2.0f;
 }
