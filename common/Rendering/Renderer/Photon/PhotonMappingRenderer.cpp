@@ -16,7 +16,7 @@
 
 PhotonMappingRenderer::PhotonMappingRenderer(std::shared_ptr<class Scene> scene, std::shared_ptr<class ColorSampler> sampler):
     BackwardRenderer(scene, sampler),
-    diffusePhotonNumber(5000000),
+    diffusePhotonNumber(10000000),
     maxPhotonBounces(1000),
     minPhotonBounces(1), // normal is one: only don't count the first direct hit (= zero bounces)
     targetPhotonCount(10)
@@ -211,7 +211,7 @@ glm::vec3 PhotonMappingRenderer::ComputeSampleColor(const struct IntersectionSta
 
 
     // only do photon mapping for the first 2 samples! should be enough.
-    if (sampleIdx >= 2){
+    if (sampleIdx >= 1){
         return finalRenderColor;
     }
 
@@ -245,7 +245,7 @@ glm::vec3 PhotonMappingRenderer::ComputeSampleColor(const struct IntersectionSta
 
 
     // try a different search approach (more similar to KNN)
-    int k = 500;
+    int k = 1000;
     float growStep = 0.0f;
     int p = 0;
     while(int(foundPhotons.size()) < k){
@@ -276,7 +276,7 @@ glm::vec3 PhotonMappingRenderer::ComputeSampleColor(const struct IntersectionSta
                 float weight = std::max((r - dist) / r, 0.f);
                 float photonDensityAdjust = std::max(float(foundPhotons.size()) / float(k), 1.f);
 
-                finalRenderColor += brdfColor / (r*r) * 30.0f * weight * photonDensityAdjust;
+                finalRenderColor += brdfColor / (r*r) * 60.0f * weight * photonDensityAdjust;
             }
     }
 #endif

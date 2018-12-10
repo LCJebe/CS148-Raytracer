@@ -31,42 +31,64 @@ void addSphereLight(glm::vec3 center, float radius, int numPointLights, glm::vec
 std::shared_ptr<Camera> project::CreateCamera() const
 {
     const glm::vec2 resolution = GetImageOutputResolution();
-    std::shared_ptr<Camera> camera1 = std::make_shared<PerspectiveCamera>(resolution.x / resolution.y, 49.1f * resolution.y / resolution.x);
 
+    // Main Camera. Showign one candle.
+    std::shared_ptr<Camera> camera1 = std::make_shared<PerspectiveCamera>(resolution.x / resolution.y, 49.1f * resolution.y / resolution.x);
     glm::vec3 cam_pos(-5.42333f, 1.62742f, 6.6804f);
     camera1->SetPosition(cam_pos);
-
     camera1->Rotate(glm::vec3(1.f, 0.f, 0.f), 81.1831f / 180.f * PI);
     camera1->Rotate(glm::vec3(0.f, 0.f, 1.f), -101.51f / 180.f * PI);
 
 
+    // I think this camera shows the candle only?
     std::shared_ptr<Camera> camera2 = std::make_shared<PerspectiveCamera>(resolution.x / resolution.y, 49.1f * resolution.y / resolution.x);
     glm::vec3 cam_pos2(-6.38683f, 1.087f, 9.18057f);
     camera2->SetPosition(cam_pos2);
-
     camera2->Rotate(glm::vec3(1.f, 0.f, 0.f), 63.134f / 180.f * PI);
     camera2->Rotate(glm::vec3(0.f, 0.f, 1.f), -61.8181f / 180.f * PI);
 
+    // Dont't know
     std::shared_ptr<Camera> camera3 = std::make_shared<PerspectiveCamera>(resolution.x / resolution.y, 49.1f * resolution.y / resolution.x);
     glm::vec3 cam_pos3(3.78134f, 2.36243f, 7.38813f);
     camera3->SetPosition(cam_pos3);
-
     camera3->Rotate(glm::vec3(1.f, 0.f, 0.f), 75.5642f / 180.f * PI);
     camera3->Rotate(glm::vec3(0.f, 0.f, 1.f), -123.162f / 180.f * PI);
 
+    // a little bit zoomed out, showing both candles
     std::shared_ptr<Camera> camera4 = std::make_shared<PerspectiveCamera>(resolution.x / resolution.y, 49.1f * resolution.y / resolution.x);
     glm::vec3 cam_pos4(-6.99852f, 1.94818f, 6.92974f);
     camera4->SetPosition(cam_pos4);
-
     camera4->Rotate(glm::vec3(1.f, 0.f, 0.f), 81.1832f / 180.f * PI);
     camera4->Rotate(glm::vec3(0.f, 0.f, 1.f), -101.51f / 180.f * PI);
 
-    float focalDistance = 7.f;
-    float apertureRadius = 0.06f;
+    // Close up of roses and violin
+    std::shared_ptr<Camera> camera5 = std::make_shared<PerspectiveCamera>(resolution.x / resolution.y, 49.1f * resolution.y / resolution.x);
+    glm::vec3 cam_pos5(-1.69727f, -0.568257f, 5.81544f);
+    camera5->SetPosition(cam_pos5);
+    camera5->Rotate(glm::vec3(1.f, 0.f, 0.f), 90.4093f / 180.f * PI);
+    camera5->Rotate(glm::vec3(0.f, 0.f, 1.f), -81.8588f / 180.f * PI);
+
+    // close up of piano keys
+    std::shared_ptr<Camera> camera6 = std::make_shared<PerspectiveCamera>(resolution.x / resolution.y, 49.1f * resolution.y / resolution.x);
+    glm::vec3 cam_pos6(-2.80071f, -0.051504f, 5.47567f);
+    camera6->SetPosition(cam_pos6);
+    camera6->Rotate(glm::vec3(1.f, 0.f, 0.f), 80.7865f / 180.f * PI);
+    camera6->Rotate(glm::vec3(0.f, 0.f, 1.f), -90.6842f / 180.f * PI);
+
+    // better close up of piano keys (introduced with Scene 8)
+    std::shared_ptr<Camera> camera7 = std::make_shared<PerspectiveCamera>(resolution.x / resolution.y, 49.1f * resolution.y / resolution.x);
+    glm::vec3 cam_pos7(-2.46156f, -0.082661f, 5.35153f);
+    camera7->SetPosition(cam_pos7);
+    camera7->Rotate(glm::vec3(1.f, 0.f, 0.f), 86.8058f / 180.f * PI);
+    camera7->Rotate(glm::vec3(0.f, 0.f, 1.f), -89.0828f / 180.f * PI);
+
+    // camera with depth of field effect. Use every camera from before with copy paste if needed.
+    float focalDistance = 2.2f;
+    float apertureRadius = 0.02f;
     std::shared_ptr<Camera> DOFcamera = std::make_shared<WideApertureCamera>(resolution.x / resolution.y, 49.1f * resolution.y / resolution.x, focalDistance, apertureRadius);
-    DOFcamera->SetPosition(cam_pos);
-    DOFcamera->Rotate(glm::vec3(1.f, 0.f, 0.f), 81.1831f / 180.f * PI);
-    DOFcamera->Rotate(glm::vec3(0.f, 0.f, 1.f), -101.51f / 180.f * PI);
+    DOFcamera->SetPosition(cam_pos7);
+    DOFcamera->Rotate(glm::vec3(1.f, 0.f, 0.f), 86.8058f / 180.f * PI);
+    DOFcamera->Rotate(glm::vec3(0.f, 0.f, 1.f), -89.0828f / 180.f * PI);
 
     return camera1;
 }
@@ -97,13 +119,13 @@ std::shared_ptr<Scene> project::CreateScene() const
     scene->AddLight(pointLight);
 
     // add the two candle lights using POINT lights
-    glm::vec3 candleColor = glm::vec3(1.f, 0.2f, 0.05f)*1.f;
+    glm::vec3 candleColor = glm::vec3(1.f, 0.2f, 0.05f)*2.f;
 
     // try adding the two sphere lights
     glm::vec3 lightPos1 = glm::vec3(4.46158f, 1.94833f, 7.22604f);
     glm::vec3 lightPos2 = glm::vec3(-1.16581f, -0.760411f, 7.22604f);
     float radius = 0.12f;
-    int numPointLights = 8;
+    int numPointLights = 4;
     addSphereLight(lightPos1, radius, numPointLights, candleColor, scene);
     addSphereLight(lightPos2, radius, numPointLights, candleColor, scene);
 
@@ -136,13 +158,20 @@ std::shared_ptr<Scene> project::CreateScene() const
     //cubeMaterial->SetSpecular(glm::vec3(0.6f, 0.6f, 0.6f), 40.f);
     //cubeMaterial->SetReflectivity(0.3f);
 
+    // for Variant B
+    std::shared_ptr<BlinnPhongMaterial> varBMaterial = std::make_shared<BlinnPhongMaterial>();
+    varBMaterial->SetDiffuse(glm::vec3(0.5f, 0.5f, 0.5f));
+    varBMaterial->SetSpecular(glm::vec3(0.f, 0.f, 0.f), 0.f);
+    varBMaterial->SetReflectivity(1.f);
+
     // Objects (loaded from a sigle .obj file)
     std::vector<std::shared_ptr<aiMaterial>> loadedMaterials;
-    std::vector<std::shared_ptr<MeshObject>> allObjects = MeshLoader::LoadMesh("../../../Project/Scene7.obj", &loadedMaterials);
+    std::vector<std::shared_ptr<MeshObject>> allObjects = MeshLoader::LoadMesh("../../../Project/Scene7_1.obj", &loadedMaterials);
     std::cout << " There are " << allObjects.size() << " objects in the scene." << std::endl;
     for (size_t i = 0; i < allObjects.size(); ++i) {
         std::shared_ptr<Material> materialCopy = std::make_shared<BlinnPhongMaterial>();
         materialCopy->LoadMaterialFromAssimp(loadedMaterials[i]);
+
         allObjects[i]->SetMaterial(materialCopy);
 
         std::shared_ptr<SceneObject> sceneObject = std::make_shared<SceneObject>();
@@ -192,12 +221,12 @@ std::shared_ptr<ColorSampler> project::CreateSampler() const
 
 std::shared_ptr<class Renderer> project::CreateRenderer(std::shared_ptr<Scene> scene, std::shared_ptr<ColorSampler> sampler) const
 {
-    std::shared_ptr<BackwardRenderer> renderer = std::make_shared<BackwardRenderer>(scene, sampler);
+    //std::shared_ptr<BackwardRenderer> renderer = std::make_shared<BackwardRenderer>(scene, sampler);
 
-//    std::shared_ptr<Camera> camera = CreateCamera();
-//    std::shared_ptr<PhotonMappingRenderer> renderer = std::make_shared<PhotonMappingRenderer>(scene, sampler);
-//    std::shared_ptr<PerspectiveCamera> pcamera = std::dynamic_pointer_cast<PerspectiveCamera> (camera);
-//    renderer->setPerspectiveCamera(pcamera);
+    std::shared_ptr<Camera> camera = CreateCamera();
+    std::shared_ptr<PhotonMappingRenderer> renderer = std::make_shared<PhotonMappingRenderer>(scene, sampler);
+    std::shared_ptr<PerspectiveCamera> pcamera = std::dynamic_pointer_cast<PerspectiveCamera> (camera);
+    renderer->setPerspectiveCamera(pcamera);
 
     return renderer;
 }

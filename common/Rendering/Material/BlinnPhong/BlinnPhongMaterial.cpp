@@ -67,6 +67,10 @@ void BlinnPhongMaterial::LoadMaterialFromAssimp(std::shared_ptr<aiMaterial> assi
         SetTexture("specularTexture", TextureLoader::LoadTexture(specularPath));
     }
 
+    // enable only for Variant B
+    //diffuseColor = glm::vec3(0.5f, 0.5f, 0.5f);
+    //specularColor = glm::vec3(0.0f, 0.0f, 0.0f);
+
 }
 
 bool BlinnPhongMaterial::HasDiffuseReflection() const
