@@ -112,6 +112,7 @@ std::shared_ptr<Scene> project::CreateScene() const
     // add a green / blue point light to balance colors
     glm::vec3 blueColor = glm::vec3(0.037f, 0.915f, 1.0f);
     glm::vec3 orangeColor = glm::vec3(0.855f, 0.167f, 0.047f);
+    glm::vec3 violetColor = glm::vec3(0.3f, 0.037f, 0.855f);
 
     std::shared_ptr<Light> pointLight = std::make_shared<PointLight>();
     pointLight->SetPosition(glm::vec3(4.09601f, 5.2227f, 5.24693f));
@@ -123,6 +124,15 @@ std::shared_ptr<Scene> project::CreateScene() const
     pointLight2->SetPosition(glm::vec3(-1.57219f, -0.755099f, 5.41992f));
     pointLight2->SetLightColor(orangeColor * 0.5f);
     scene->AddLight(pointLight2);
+
+    // add another one for the roses. all to avoid photon mapping
+    std::shared_ptr<Light> pointLight3 = std::make_shared<PointLight>();
+    //pointLight3->SetPosition(glm::vec3(-1.88682f, -1.51011f, 6.12506f)); // high
+    //pointLight3->SetPosition(glm::vec3(-1.88682f, -1.51011f, 5.60377f)); // lower
+    //pointLight3->SetPosition(glm::vec3(-0.889697f, -0.778413f, 5.61865f)); // in front of rose
+    pointLight3->SetPosition(glm::vec3(1.8102f, -0.208705f, 6.06657f)); // behind sheet music
+    pointLight3->SetLightColor(violetColor * 5.f);
+    scene->AddLight(pointLight3);
 
     // add the two candle lights using POINT lights
     glm::vec3 candleColor = glm::vec3(1.f, 0.2f, 0.05f)*2.f;
@@ -239,7 +249,7 @@ std::shared_ptr<class Renderer> project::CreateRenderer(std::shared_ptr<Scene> s
 
 int project::GetSamplesPerPixel() const
 {
-    return 4;
+    return 1;
 }
 
 bool project::NotifyNewPixelSample(glm::vec3 inputSampleColor, int sampleIndex)
