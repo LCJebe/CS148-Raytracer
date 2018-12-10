@@ -7,6 +7,7 @@
 #include "common/Sampling/ColorSampler.h"
 #include "common/Output/ImageWriter.h"
 #include "common/Rendering/Renderer.h"
+#include "thread"
 
 #include "common/Scene/Geometry/Primitives/Triangle/Triangle.h"
 
@@ -42,6 +43,9 @@ void RayTracer::Run()
     const int maxSamplesPerPixel = storedApplication->GetSamplesPerPixel();
     assert(maxSamplesPerPixel >= 1);
 
+    const unsigned numCPU = std::thread::hardware_concurrency();
+    std::cout << "Number of CPUs: " << numCPU << std::endl;
+
     #pragma omp parallel for
     for (int r = 0; r < static_cast<int>(currentResolution.y); ++r) {
         for (int c = 0; c < static_cast<int>(currentResolution.x); ++c) {
@@ -71,8 +75,8 @@ void RayTracer::Run()
 
                 return sampleColor;
             }), c, r);
-            if ((r < currentResolution.y / 8.0f) && ((c % 100) == 0)) {
-                std::cout << (r + c / currentResolution.x) / currentResolution.y * 800.0f << " % finished..." << std::endl;
+            if ((r < float(currentResolution.y) / numCPU) && ((c % 100) == 0)) {
+                std::cout << (r + c / currentResolution.x) / currentResolution.y * numCPU * 100.0f << " % finished..." << std::endl;
             }
         }
     }
