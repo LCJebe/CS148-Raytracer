@@ -130,20 +130,31 @@ std::shared_ptr<Scene> project::CreateScene() const
     //pointLight3->SetPosition(glm::vec3(-1.88682f, -1.51011f, 6.12506f)); // high
     //pointLight3->SetPosition(glm::vec3(-1.88682f, -1.51011f, 5.60377f)); // lower
     //pointLight3->SetPosition(glm::vec3(-0.889697f, -0.778413f, 5.61865f)); // in front of rose
-    pointLight3->SetPosition(glm::vec3(1.8102f, -0.208705f, 6.06657f)); // behind sheet music
+    //pointLight3->SetPosition(glm::vec3(1.8102f, -0.208705f, 6.06657f)); // behind sheet music
     pointLight3->SetLightColor(violetColor * 5.f);
-    scene->AddLight(pointLight3);
+    //scene->AddLight(pointLight3);
+
+    // add a SPOTLIGHT
+    const float theta1 = PI / 16.f;
+    const float theta2 = PI / 5.f;
+    std::shared_ptr<Light> spotLight = std::make_shared<SpotLight>(theta1, theta2);
+    spotLight->SetPosition(glm::vec3(-2.08115f, 2.5532f, 8.92671f));
+    spotLight->Rotate(glm::vec3(1.f, 0.f, 0.f), -38.1149f / 180.f * PI);
+    spotLight->Rotate(glm::vec3(0.f, 1.f, 0.f), -14.2697f / 180.f * PI);
+    spotLight->Rotate(glm::vec3(0.f, 0.f, 1.f), 10.9828f / 180.f * PI);
+    spotLight->SetLightColor(violetColor * 0.6f);
+    scene->AddLight(spotLight);
 
     // add the two candle lights using POINT lights
-    glm::vec3 candleColor = glm::vec3(1.f, 0.2f, 0.05f)*2.f;
+    glm::vec3 candleColor = glm::vec3(1.f, 0.2f, 0.05f)*8.f;
 
     // try adding the two sphere lights
     glm::vec3 lightPos1 = glm::vec3(4.46158f, 1.94833f, 7.22604f);
     glm::vec3 lightPos2 = glm::vec3(-1.16581f, -0.760411f, 7.22604f);
     float radius = 0.12f;
-    int numPointLights = 4;
-    addSphereLight(lightPos1, radius, numPointLights, candleColor, scene);
-    addSphereLight(lightPos2, radius, numPointLights, candleColor, scene);
+    int numPointLights = 12;
+    addSphereLight(lightPos1, radius, numPointLights, candleColor/float(numPointLights), scene);
+    addSphereLight(lightPos2, radius, numPointLights, candleColor/float(numPointLights), scene);
 
 //    // add another light for cool reflections
 //    std::shared_ptr<Light> refLight = std::make_shared<PointLight>();
@@ -229,7 +240,7 @@ std::shared_ptr<ColorSampler> project::CreateSampler() const
 
     std::shared_ptr<SimpleAdaptiveSampler> sampler = std::make_shared<SimpleAdaptiveSampler>();
     sampler->SetInternalSampler(jitter);
-    sampler->SetEarlyExitParameters(100.f * SMALL_EPSILON, 16); // 16
+    sampler->SetEarlyExitParameters(1.f * SMALL_EPSILON, 8); // 16
 
     return sampler;
     //return jitter;
@@ -249,7 +260,7 @@ std::shared_ptr<class Renderer> project::CreateRenderer(std::shared_ptr<Scene> s
 
 int project::GetSamplesPerPixel() const
 {
-    return 1;
+    return 4;
 }
 
 bool project::NotifyNewPixelSample(glm::vec3 inputSampleColor, int sampleIndex)
@@ -269,5 +280,5 @@ int project::GetMaxRefractionBounces() const
 
 glm::vec2 project::GetImageOutputResolution() const
 {
-    return glm::vec2(1920.f, 1080.f) / 2.0f;
+    return glm::vec2(1920.f, 1080.f) / 3.0f;
 }
