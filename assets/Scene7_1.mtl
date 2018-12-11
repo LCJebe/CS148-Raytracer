@@ -250,7 +250,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Bump -bm 0.100000 piano_wood.jpg
+map_Bump -bm 1.100000 piano_wood.jpg
 map_Kd piano_wood.jpg
 
 newmtl Wood_mat_NONE
@@ -277,7 +277,7 @@ illum 2
 
 newmtl flower.001
 Ns 31.372549
-Ka 0.000000 0.000000 0.000000
+Ka 0.01000 0.000000 0.00000
 Kd 0.690200 0.102000 0.102000
 Ks 0.017500 0.017500 0.017500
 Ke 0.000000 0.000000 0.000000
@@ -296,6 +296,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
+Tr 0.000000
 map_Kd Flower_1.jpg
 map_Bump Flower_1_bump.jpg
 
