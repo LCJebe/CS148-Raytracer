@@ -11,6 +11,8 @@
 
 #include "common/Scene/Geometry/Primitives/Triangle/Triangle.h"
 
+#define BOX 0
+
 
 RayTracer::RayTracer(std::unique_ptr<class Application> app):
     storedApplication(std::move(app))
@@ -46,9 +48,22 @@ void RayTracer::Run()
     const unsigned numCPU = std::thread::hardware_concurrency();
     std::cout << "Number of CPUs: " << numCPU << std::endl;
 
-    for (int r = 0; r < static_cast<int>(currentResolution.y); ++r) {
+    // define box which we render (for testing purposes)
+    int row_start = 0;
+    int row_end = static_cast<int>(currentResolution.y);
+    int col_start = 0;
+    int col_end = static_cast<int>(currentResolution.x);
+
+    if (BOX) {
+        row_start = static_cast<int>(currentResolution.y) * 340 / 540 - 50*2;
+        row_end = static_cast<int>(currentResolution.y) * 340 / 540 + 50*2;
+        col_start = static_cast<int>(currentResolution.x) * 160 / 960 - 50*2;
+        col_end = static_cast<int>(currentResolution.x) * 160 / 960 + 50*2;
+    }
+
+    for (int r = row_start; r < row_end; ++r) {
         #pragma omp parallel for
-        for (int c = 0; c < static_cast<int>(currentResolution.x); ++c) {
+        for (int c = col_start; c < col_end; ++c) {
             imageWriter.SetPixelColor(currentSampler->ComputeSamplesAndColor(maxSamplesPerPixel, 2, [&](glm::vec3 inputSample, int sampleIdx) {
                 const glm::vec3 minRange(-0.5f, -0.5f, 0.f);
                 const glm::vec3 maxRange(0.5f, 0.5f, 0.f);

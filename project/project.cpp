@@ -185,11 +185,6 @@ std::shared_ptr<Scene> project::CreateScene() const
     //cubeMaterial->SetSpecular(glm::vec3(0.6f, 0.6f, 0.6f), 40.f);
     //cubeMaterial->SetReflectivity(0.3f);
 
-    // for Variant B
-    std::shared_ptr<BlinnPhongMaterial> varBMaterial = std::make_shared<BlinnPhongMaterial>();
-    varBMaterial->SetDiffuse(glm::vec3(0.5f, 0.5f, 0.5f));
-    varBMaterial->SetSpecular(glm::vec3(0.f, 0.f, 0.f), 0.f);
-    varBMaterial->SetReflectivity(1.f);
 
     // Objects (loaded from a sigle .obj file)
     std::vector<std::shared_ptr<aiMaterial>> loadedMaterials;
@@ -225,9 +220,8 @@ std::shared_ptr<Scene> project::CreateScene() const
 
     } // end for over objects in scene
 
-
     // create acceleration structure for the scene
-    scene->GenerateAccelerationData(AccelerationTypes::BVH);
+    scene->GenerateAccelerationData(AccelerationTypes::UNIFORM_GRID);
 
     return scene;
 }
@@ -240,7 +234,7 @@ std::shared_ptr<ColorSampler> project::CreateSampler() const
 
     std::shared_ptr<SimpleAdaptiveSampler> sampler = std::make_shared<SimpleAdaptiveSampler>();
     sampler->SetInternalSampler(jitter);
-    sampler->SetEarlyExitParameters(1.f * SMALL_EPSILON, 8); // 16
+    sampler->SetEarlyExitParameters(100000.f * SMALL_EPSILON, 8); // 16
 
     return sampler;
     //return jitter;
@@ -260,7 +254,7 @@ std::shared_ptr<class Renderer> project::CreateRenderer(std::shared_ptr<Scene> s
 
 int project::GetSamplesPerPixel() const
 {
-    return 4;
+    return 8;
 }
 
 bool project::NotifyNewPixelSample(glm::vec3 inputSampleColor, int sampleIndex)
@@ -280,5 +274,7 @@ int project::GetMaxRefractionBounces() const
 
 glm::vec2 project::GetImageOutputResolution() const
 {
-    return glm::vec2(1920.f, 1080.f) / 3.0f;
+    // 	3840 x 2160 for 4K
+    //  2560×1440 for WQHD
+    return glm::vec2(1920.f, 1080.f) / 0.5f;
 }

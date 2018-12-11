@@ -3,7 +3,7 @@
 #include "common/Scene/Geometry/Ray/Ray.h"
 
 UniformGridAcceleration::UniformGridAcceleration():
-    gridSize(10, 10, 10), voxelGrid(nullptr)
+    gridSize(20, 10, 20), voxelGrid(nullptr)
 {
 }
 
