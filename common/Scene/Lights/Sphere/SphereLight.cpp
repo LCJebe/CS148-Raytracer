@@ -1,7 +1,7 @@
 #include "common/Scene/Lights/Sphere/SphereLight.h"
 
 SphereLight::SphereLight(float radius):
-    samplesToUse(16), lightRadius(radius)
+    samplesToUse(4), lightRadius(radius)
 {
 }
 

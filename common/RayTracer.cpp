@@ -11,7 +11,7 @@
 
 #include "common/Scene/Geometry/Primitives/Triangle/Triangle.h"
 
-#define BOX 0
+#define BOX 1
 
 
 RayTracer::RayTracer(std::unique_ptr<class Application> app):
@@ -55,10 +55,10 @@ void RayTracer::Run()
     int col_end = static_cast<int>(currentResolution.x);
 
     if (BOX) {
-        row_start = static_cast<int>(currentResolution.y) * 340 / 540 - 50*2;
-        row_end = static_cast<int>(currentResolution.y) * 340 / 540 + 50*2;
-        col_start = static_cast<int>(currentResolution.x) * 160 / 960 - 50*2;
-        col_end = static_cast<int>(currentResolution.x) * 160 / 960 + 50*2;
+        row_start = static_cast<int>(currentResolution.y) * 340 / 540 - 50;
+        row_end = static_cast<int>(currentResolution.y) * 340 / 540 + 50;
+        col_start = static_cast<int>(currentResolution.x) * 160 / 960 - 50;
+        col_end = static_cast<int>(currentResolution.x) * 160 / 960 + 50;
     }
 
     for (int r = row_start; r < row_end; ++r) {
